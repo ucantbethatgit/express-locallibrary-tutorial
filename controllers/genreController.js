@@ -1,15 +1,54 @@
 const validator = require('express-validator');
+var mongoose = require('mongoose');
 
+var async = require('async');
+var Book = require('../models/book');
+var Author = require('../models/author');
 var Genre = require('../models/genre');
 
-// Display list of all Genre.
-exports.genre_list = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre list');
+// Display list of all Genres.
+exports.genre_list = function(req, res, next) {
+
+  Genre.find()
+    .populate('genre')
+    .sort([['name', 'ascending']])
+    .exec(function (err, list_genres) {
+      if (err) { return next(err); }
+      //Successful, so render
+      res.render('genre_list', { title: 'Genre List', genre_list: list_genres });
+    });
+
 };
 
 // Display detail page for a specific Genre.
-exports.genre_detail = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre detail: ' + req.params.id);
+//exports.genre_detail = function(req, res) {
+//    res.send('NOT IMPLEMENTED: Genre detail: ' + req.params.id);
+//};
+
+// Display detail page for a specific Genre.
+exports.genre_detail = function(req, res, next) {
+    var id = mongoose.Types.ObjectId(req.params.id);
+
+    async.parallel({
+        genre: function(callback) {
+            Genre.findById(req.params.id)
+              .exec(callback)
+        },
+        genre_books: function(callback) {
+          Book.find({ 'genre': req.params.id })
+          .exec(callback)
+        },
+    }, function(err, results) {
+        if (err) { return next(err); } // Error in API usage.
+        if (results.genre==null) { // No results.
+            var err = new Error('Genre not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Successful, so render.
+        res.render('genre_detail', { title: 'Genre Detail', genre: results.genre, genre_books: results.genre_books } );
+    });
+
 };
 
 // Display Genre create form on GET.

@@ -1,0 +1,28 @@
+extends layout
+
+block content
+
+  h1 genre: #{genre.name} #{genre.name} 
+  //p #{genre.date_of_birth} - #{genre.date_of_death}
+  
+  div(style='margin-left:20px;margin-top:20px')
+
+    h4 Genres
+    h5=title
+    //h6=genre
+    //h7=genre_books
+    
+    dl
+      each book in genre_books
+        dt 
+          a(href=book.url) #{book.title} 
+          dd #{book.summary} 
+
+      else
+        p This genre has no books.
+     
+    //h8=genre  
+
+    hr
+    p
+      a(href=genre.url+'/delete') Delete genre
