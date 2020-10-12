@@ -8,6 +8,8 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var catalogRouter = require('./routes/catalog');  //Import routes for "catalog" area of site
 
+
+
 var app = express();
 //Set up mongoose connection
 var mongoose = require('mongoose');
@@ -17,9 +19,43 @@ mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true});
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
+
+
+var bodyParser = require('body-parser');
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+
+
+// use sessions for tracking logins
+app.use(session({
+  secret: 'treehouse loves you',
+  resave: true,
+  saveUninitialized: false,
+  store: new MongoStore({
+    mongooseConnection: db
+  })
+}));
+
+// make user ID available in templates
+app.use(function (req, res, next) {
+  res.locals.currentUser = req.session.userId;
+  next();
+});
+
+// parse incoming requests
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+
+
+
+
+
+
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+//app.set('views', path.join(doorman, 'views'));
 app.set('view engine', 'pug');
+app.set('views', __dirname + '/views');
 
 app.use(logger('dev'));
 app.use(express.json());

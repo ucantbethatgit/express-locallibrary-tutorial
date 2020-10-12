@@ -17,3 +17,16 @@ block content
       li #[strong Copies available:] !{data.book_instance_available_count} 
       li #[strong Authors:] !{data.author_count}
       li #[strong Genres:] !{data.genre_count}
+
+  if !currentUser
+      .main.container.text-xs-center
+      h1.display-3 Read &amp; Share Books
+      p.lead Choose from our large collection of paid and free books!
+      a.btn.btn-info-outline.btn-lg(href='/register') Get Started for FREE
+
+  if currentUser
+    div
+    img.avatar.img-circle.hidden-xs-down(src='/images/avatar.png', alt='avatar')
+    a.btn.btn-light.pull-md-right(href='/logout') Log out
+  else  
+    a.btn.btn-info.pull-md-right(href='login') Login
